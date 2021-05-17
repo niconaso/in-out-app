@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "in-out-app-7d931": {
+      "hosting": {
+        "inOutApp": [
+          "in-out-app-7d931"
+        ]
+      }
+    }
+  }
+}
