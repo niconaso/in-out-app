@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/app.reducer';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth.service';
+import * as ui from '../../shared/ui.actions';
 
 @Component({
   selector: 'app-register',
@@ -11,11 +14,19 @@ import { AuthService } from '../../services/auth.service';
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
-
+  /**
+   * Creates an instance of RegisterComponent.
+   * @param {FormBuilder} fb
+   * @param {Router} router
+   * @param {AuthService} authService
+   * @param {Store<AppState>} store
+   * @memberof RegisterComponent
+   */
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit(): void {
@@ -31,19 +42,13 @@ export class RegisterComponent implements OnInit {
       const { name, email, password } = this.registerForm.value;
 
       try {
-        Swal.fire({
-          title: 'Espere por favor',
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
+        this.store.dispatch(ui.isLoading());
 
         const credentials = await this.authService.register(
           name,
           email,
           password
         );
-        Swal.close();
 
         this.router.navigateByUrl('/');
       } catch (error) {
@@ -52,6 +57,8 @@ export class RegisterComponent implements OnInit {
           title: 'Oops...',
           text: error.message,
         });
+      } finally {
+        this.store.dispatch(ui.stopLoading());
       }
     }
   }

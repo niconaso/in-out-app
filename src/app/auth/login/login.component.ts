@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/app.reducer';
+import * as ui from '../../shared/ui.actions';
+
 import { AuthService } from 'src/app/services/auth.service';
 import Swal from 'sweetalert2';
 
@@ -12,10 +16,19 @@ import Swal from 'sweetalert2';
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
 
+  /**
+   * Creates an instance of LoginComponent.
+   * @param {FormBuilder} fb
+   * @param {Router} router
+   * @param {AuthService} authServie
+   * @param {Store<AppState>} store
+   * @memberof LoginComponent
+   */
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authServie: AuthService
+    private authServie: AuthService,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit(): void {
@@ -24,18 +37,11 @@ export class LoginComponent implements OnInit {
 
   async login(form: FormGroup) {
     if (form.valid) {
-      const { email, password } = form.value;
-
       try {
-        Swal.fire({
-          title: 'Espere por favor',
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
+        const { email, password } = form.value;
 
+        this.store.dispatch(ui.isLoading());
         const credentials = await this.authServie.login(email, password);
-        Swal.close();
 
         this.router.navigateByUrl('/');
       } catch (error) {
@@ -44,6 +50,8 @@ export class LoginComponent implements OnInit {
           title: 'Oops...',
           text: error.message,
         });
+      } finally {
+        this.store.dispatch(ui.stopLoading());
       }
     }
   }
