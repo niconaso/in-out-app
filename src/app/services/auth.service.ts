@@ -7,11 +7,15 @@ import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AppState } from '../app.reducer';
 import * as auth from '../auth/auth.actions';
+import * as inOut from '../in-out/in-out.actions';
+
 import { User } from '../models/user.model';
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private _user!: User | null;
+
   private subscription!: Subscription;
   /**
    * Creates an instance of AuthService.
@@ -25,6 +29,12 @@ export class AuthService {
     private store: Store<AppState>
   ) {}
 
+  get user() {
+    return {
+      ...this._user,
+    };
+  }
+
   initAuthListener() {
     this.auth.authState.subscribe((firebaseUser) => this.setUser(firebaseUser));
   }
@@ -36,12 +46,14 @@ export class AuthService {
         .valueChanges()
         .subscribe((firestoreUser: any) => {
           const user: User = User.fromFirebase(firestoreUser);
-
+          this._user = user;
           this.store.dispatch(auth.setUser({ user }));
         });
     } else {
+      this._user = null;
       this.subscription?.unsubscribe();
       this.store.dispatch(auth.unSetUser());
+      this.store.dispatch(inOut.unSetItems());
     }
   }
 
@@ -62,8 +74,9 @@ export class AuthService {
   }
 
   logout(): Promise<void> {
-    this.store.dispatch(auth.unSetUser());
     this.subscription.unsubscribe();
+
+    this._user = null;
     return this.auth.signOut();
   }
 
