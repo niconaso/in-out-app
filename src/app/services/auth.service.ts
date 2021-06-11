@@ -74,7 +74,7 @@ export class AuthService {
   }
 
   logout(): Promise<void> {
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
 
     this._user = null;
     return this.auth.signOut();

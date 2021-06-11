@@ -5,7 +5,8 @@ import {
 } from '@angular/fire/firestore';
 import { Store } from '@ngrx/store';
 import 'firebase/firestore';
-import { map } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { AppState } from '../app.reducer';
 import * as inOut from '../in-out/in-out.actions';
 import { InOut, InOutItem } from '../models/in-out.model';
@@ -35,13 +36,15 @@ export class InOutService {
       .add({ ...inOut });
   }
 
-  initListenItems(uid: string | undefined): void {
-    this.firestore
+  initListenItems(uid: string | undefined): Observable<InOutItem[]> {
+    return this.firestore
       .collection(`${uid}/in-out/items`)
       .snapshotChanges()
-      .pipe(map((snapshot) => this.mapSnapshotToInOutItems(snapshot)))
-      .subscribe((items: InOutItem[]) =>
-        this.store.dispatch(inOut.setItems({ items }))
+      .pipe(
+        map((snapshot) => this.mapSnapshotToInOutItems(snapshot)),
+        tap((items: InOutItem[]) =>
+          this.store.dispatch(inOut.setItems({ items }))
+        )
       );
   }
 

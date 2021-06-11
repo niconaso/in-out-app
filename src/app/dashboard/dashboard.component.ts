@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, switchMap } from 'rxjs/operators';
 import { AppState } from '../app.reducer';
 import { InOutService } from '../services/in-out.service';
 
@@ -11,7 +11,7 @@ import { InOutService } from '../services/in-out.service';
   styles: [],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private subscription!: Subscription;
+  private subscription: Subscription = new Subscription();
 
   constructor(
     private inOutService: InOutService,
@@ -19,10 +19,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.subscription = this.store
+    const subs: Subscription = this.store
       .select('user')
-      .pipe(filter((auth) => auth.user !== null))
-      .subscribe(({ user }) => this.inOutService.initListenItems(user?.uid));
+      .pipe(
+        filter((auth) => auth.user !== null),
+        switchMap(({ user }) => this.inOutService.initListenItems(user?.uid))
+      )
+      .subscribe();
+
+    this.subscription.add(subs);
   }
 
   ngOnDestroy(): void {

@@ -18,9 +18,9 @@ const routes: Route[] = [
   },
   {
     path: '',
-    component: DashboardComponent,
-    canActivate: [AuthGuard],
-    children: dashboardRoutes,
+    loadChildren: () =>
+      import('./in-out/in-out.module').then((m) => m.InOutModule),
+      canLoad: [AuthGuard]
   },
   {
     path: '**',

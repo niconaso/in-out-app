@@ -1,10 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState } from 'src/app/app.reducer';
-import { InOutItem } from 'src/app/models/in-out.model';
-import { ChartType } from 'chart.js';
-import { MultiDataSet, Label } from 'ng2-charts';
+import { Label, MultiDataSet } from 'ng2-charts';
 import { Subscription } from 'rxjs';
+import { InOutItem } from 'src/app/models/in-out.model';
+import { InOutState } from '../in-out.reducer';
 
 @Component({
   selector: 'app-statistics',
@@ -24,7 +23,7 @@ export class StatisticsComponent implements OnInit, OnDestroy {
 
   private subscription!: Subscription;
 
-  constructor(private store: Store<AppState>) {}
+  constructor(private store: Store<InOutState>) {}
 
   ngOnInit(): void {
     this.subscription = this.store
@@ -51,7 +50,6 @@ export class StatisticsComponent implements OnInit, OnDestroy {
         this.out++;
       }
     });
-
 
     this.doughnutChartData = [[this.totalIn, this.totalOut]];
   }

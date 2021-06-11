@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { AppState } from 'src/app/app.reducer';
 import { InOutItem } from 'src/app/models/in-out.model';
 import { InOutService } from 'src/app/services/in-out.service';
 import Swal from 'sweetalert2';
+import { InOutState } from '../in-out.reducer';
 
 @Component({
   selector: 'app-detail',
@@ -17,7 +17,7 @@ export class DetailComponent implements OnInit, OnDestroy {
   private subscription!: Subscription;
 
   constructor(
-    private store: Store<AppState>,
+    private store: Store<InOutState>,
     private inOutService: InOutService
   ) {}
 
